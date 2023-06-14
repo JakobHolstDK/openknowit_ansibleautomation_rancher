@@ -1,0 +1,16 @@
+[Unit]
+Description=Ansible Automation on Ansible Automation
+After=network.target
+
+[Service]
+Environment="VAULT_TOKEN="
+Environment="VAULT_FORMAT=json"
+Environment="VAULT_ADDR="
+ExecStart=/opt/openknowit_ansibleautomation_main/bin/aaoaad master
+User={{ aaoaa_serviceaccount['name'] }}
+Restart=always
+
+[Install]
+WantedBy=default.target
+RequiredBy=network.target
+

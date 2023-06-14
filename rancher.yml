@@ -1,0 +1,10 @@
+- name: "ranche | install git"
+  hosts: all
+  tasks:
+  - name: "ansiblemanager | install git"
+    ansible.builtin.package:
+      name: git
+      state: latest
+    become: yes
+
+

@@ -1,0 +1,126 @@
+{
+  "organization": [
+    {
+      "name": "1000_Miracle",
+      "inventories": [
+        {
+          "name": "2000_ranchherservers",
+          "description": "Inventory containing rancher servers",
+          "variables": {
+            "rancher_serviceaccount": {
+              "name": "knowit",
+              "gecos": "Kalm rancher automation"
+            }
+          },
+          "type": "static"
+        }
+      ],
+      "credentials": [
+        { 
+          "name": "2000_rancher",
+          "description": "service account for rancher servers",
+          "credential_type": "Machine",
+          "user_vault_path": "project/openknowit/remotesshuser",
+          "kind": "ssh"
+        },
+        { 
+          "name": "1120_zabbixservers",
+          "description": "main service account for testing",
+          "credential_type": "Machine",
+          "user_vault_path": "project/openknowit/remotesshuser",
+          "kind": "ssh"
+        }
+      ],
+      "hosts": [
+	      { "name": "demoautocat001.openknowit.com",   "description": "Server autocreated", "inventories": ["1110_zabbixclients" ] },
+        { "name": "demoautoctl001.openknowit.com",   "description": "Server autocreated", "inventories": ["1110_zabbixclients" ] },
+        { "name": "demoautoexec001.openknowit.com",  "description": "Server autocreated", "inventories": ["1110_zabbixclients" ] },
+        { "name": "monzabbix001.openknowit.com",     "description": "Server autocreated", "inventories": ["1120_zabbixservers" ] }
+      ],
+      "projects": [
+        {
+          "name": "1110_zabbixclients",
+          "description": "Main project zabbix clients are up",
+          "scm_type": "git",
+          "scm_url": "git@github.com:JakobHolstDK/openknowit_ansibleautomation_zabbixclients.git",
+          "scm_branch": "main",
+          "credential": "1000_github",
+          "master": "True"
+        },
+        {
+          "name": "1120_zabbixservers",
+          "description": "Project to setup zabbix servers",
+          "scm_type": "git",
+          "scm_url": "git@github.com:JakobHolstDK/openknowit_ansibleautomation_zabbixservers.git",
+          "scm_branch": "main",
+          "credential": "1000_github",
+          "master": "True"
+        }
+      ],
+      "templates": [
+        {
+          "name": "1110_checkup_zabbixclients",
+          "description": "job checking connectivity",
+          "job_type": "run",
+          "inventory": "1110_zabbixclients",
+          "project": "1110_zabbixclients",
+          "EE": "Automation Hub Default execution environment",
+          "credentials": "1100_zabbixclients",
+          "playbook": "checkup.yml"
+        },
+        {
+          "name": "1120_checkup_zabbixservers",
+          "description": "job checking connectivity",
+          "job_type": "run",
+          "inventory": "1120_zabbixservers",
+          "project": "1120_zabbixservers",
+          "EE": "Automation Hub Default execution environment",
+          "credentials": "1120_zabbixservers",
+          "playbook": "checkup.yml"
+        }
+      ],
+      "schedules": [
+        {
+          "name": "1110_jobschedule_checkup_zabbixclients",
+          "type": "job",
+          "template": "1110_checkup_zabbixclients",
+          "description": "Master job for ensuring connectivity",
+          "local_time_zone": "CET",
+          "run_every_minute": "10",
+          "start": "now",
+          "end": "never"
+        },
+        {
+          "name": "1120_jobschedule_checkup_zabbixservers",
+          "type": "job",
+          "template": "1120_checkup_zabbixservers",
+          "description": "Master job for ensuring connectivity to zabbix servers",
+          "local_time_zone": "CET",
+          "run_every_minute": "10",
+          "start": "now",
+          "end": "never"
+        },
+        {
+          "name": "1110_projectschedule_zabbixclients",
+          "type": "project",
+          "project": "1110_zabbixclients",
+          "description": "Master job for syncing project zabbix clients",
+          "local_time_zone": "CET",
+          "run_every_minute": "15",
+          "start": "now",
+          "end": "never"
+        }, 
+        {
+          "name": "1120_projectschedule_zabbixserver",
+          "type": "project",
+          "project": "1120_zabbixservers",
+          "description": "Master job for syncing project zabbixservers",
+          "local_time_zone": "CET",
+          "run_every_minute": "15",
+          "start": "now",
+          "end": "never"
+        }
+      ]
+    }
+  ]
+}
